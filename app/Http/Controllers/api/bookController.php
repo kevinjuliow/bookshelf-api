@@ -12,20 +12,52 @@ class bookController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function bookPagination(Request $request)
     {
-        // $books = book::orderBy('title' , 'asc')->get() ; 
-        // return response()->json(['message' => 'Testing' ] , 200);
+    $perPage = $request->input('per_page', 5);
+
+    $books = Book::orderBy('title', 'asc')->paginate($perPage);
+
+    return response()->json([
+        'current_page' => $books->currentPage(),    
+        'data' => $books->items(),
+        'first_page_url' => $books->url(1),
+        'from' => $books->firstItem(),
+        'last_page' => $books->lastPage(),
+        'last_page_url' => $books->url($books->lastPage()),
+        'next_page_url' => $books->nextPageUrl(),
+        'per_page' => $books->perPage(),
+        'path' => $books->path(),
+        'prev_page_url' => $books->previousPageUrl(),
+        'to' => $books->lastItem(),
+        'total' => $books->total()
+    ], 200);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a new book.
      */
     public function store(Request $request)
     {
+
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                "message" => "Unauthorized"
+            ], 401);
+        }
+
+
         $validRequest = Validator::make($request->all() , [
             'isbn' => 'required',
             'title' => 'required',
+            "subtitle" => "nullable|string",
+            "author" => "nullable|string",
+            "published" => "nullable|string",
+            "publisher" => "nullable|string",
+            "pages" => "nullable|integer",
+            "description" => "nullable|string",
+            "website" => "nullable|string"
         ]);
 
         if ($validRequest->fails()){
@@ -45,8 +77,9 @@ class bookController extends Controller
             ] , 422);
         }
 
+       
 
-        $book = $request->user()->books()->create([
+        $book = new book ([
             'isbn' => $request->isbn,
             'title' => $request->title,
             'subtitle' => $request->subtitle,
@@ -56,7 +89,9 @@ class bookController extends Controller
             'pages' => $request->pages,
             'description' => $request->description,
             'website' => $request->website,
-        ] , 201);
+        ]);
+
+        $user->books()->save($book);    
 
         return response()->json([
             "message" => "Book Created" , 
