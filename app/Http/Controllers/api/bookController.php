@@ -13,10 +13,8 @@ class bookController extends Controller
      */
     public function index()
     {
-        $books = book::orderBy('title' , 'asc')->get() ; 
-        return response()->json([
-            
-        ]);
+        // $books = book::orderBy('title' , 'asc')->get() ; 
+        return response()->json(['message' => 'Testing' ] , 200);
     }
 
     /**
