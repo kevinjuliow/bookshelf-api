@@ -55,7 +55,7 @@ class userController extends Controller
     public function signin(Request $request)
     {
         $validRequest = Validator::make($request->all() , [
-            'email' => 'required|email|unique:users',
+            'email' => 'required|email',
             'password' => 'required',
         ]);
 
@@ -72,7 +72,13 @@ class userController extends Controller
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'invalid credentials.'] , 401);
         }
-        
+
+        $token = $user->createToken('authToken')->plainTextToken;
+
+        return response()->json([
+            'message' => 'User Created',
+            'token' => $token
+        ], 200);
     }
 
 
