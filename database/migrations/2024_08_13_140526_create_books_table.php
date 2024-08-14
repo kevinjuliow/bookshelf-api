@@ -15,14 +15,17 @@ return new class extends Migration
             $table->id();
             $table->string('isbn');
             $table->string('title');
-            $table->string('subtitle');
-            $table->string('author');
-            $table->string('published');
-            $table->string('publisher');
-            $table->string('pages');
-            $table->longText('description');
-            $table->longText('website');
+            $table->string('subtitle')->nullable();
+            $table->string('author')->nullable();
+            $table->string('published')->nullable();
+            $table->string('publisher')->nullable();
+            $table->integer('pages')->nullable();
+            $table->longText('description')->nullable();
+            $table->longText('website')->nullable();
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
+          
         });
     }
 

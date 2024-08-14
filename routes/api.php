@@ -5,12 +5,18 @@ use App\Http\Controllers\api\userController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
 
-//Create User 
+//Register User 
 Route::post('/register', [userController::class, 'signup']);
 
+//Login
+Route::post('/login', [userController::class, 'signin']);
+
 //GET ALL BOOKS
-Route::get('books' , [bookController::class , 'index'] );
+Route::get('/books' , [bookController::class , 'index'] );
+
+
+//Create a new Book
+Route::post('/books', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');

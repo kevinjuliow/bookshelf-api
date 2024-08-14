@@ -12,4 +12,9 @@ class book extends Model
     protected $fillable = ['id' , 'isbn' , 'title' , 'subtitle' ,
     'author' , 'published' , 'publisher' , 'pages' , 'description' ,'website'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
