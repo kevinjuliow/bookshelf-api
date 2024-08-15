@@ -10,27 +10,16 @@ use Illuminate\Support\Facades\Validator;
 class bookController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the books using pagination.
      */
-    public function bookPagination(Request $request)
-    {
-    $perPage = $request->input('per_page', 5);
 
-    $books = Book::orderBy('title', 'asc')->paginate($perPage);
+    public function bookPagination()
+    {
+
+    $books = Book::orderBy('title', 'asc')->paginate(10);
 
     return response()->json([
-        'current_page' => $books->currentPage(),    
-        'data' => $books->items(),
-        'first_page_url' => $books->url(1),
-        'from' => $books->firstItem(),
-        'last_page' => $books->lastPage(),
-        'last_page_url' => $books->url($books->lastPage()),
-        'next_page_url' => $books->nextPageUrl(),
-        'per_page' => $books->perPage(),
-        'path' => $books->path(),
-        'prev_page_url' => $books->previousPageUrl(),
-        'to' => $books->lastItem(),
-        'total' => $books->total()
+        $books
     ], 200);
     }
 
@@ -39,7 +28,6 @@ class bookController extends Controller
      */
     public function store(Request $request)
     {
-
         $user = $request->user();
         if (!$user) {
             return response()->json([
@@ -102,9 +90,27 @@ class bookController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request , string $id)
     {
-        //
+        $book = Book::find($id);
+        $user = $request->user();
+
+        if (!$book) {
+             return response()->json([
+                'message' => 'No query result for model [App\\Models\\Book] 999'
+            ] , 404);
+        }
+
+        if ($book->user_id != $user->id){
+            return response()->json([
+                'message' => 'this action is unauthorized'
+            ] , 403);
+        }
+
+        return response()->json([
+            $book
+        ] , 200);
+
     }
 
     /**
@@ -112,14 +118,88 @@ class bookController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+
+        $book = Book::find($id);
+        $user = $request->user();
+        
+        if (!$book) {
+            return response()->json([
+               'message' => 'No query result for model [App\\Models\\Book] 999'
+           ] , 404);
+       }
+
+       if ($book->user_id != $user->id){
+           return response()->json([
+               'message' => 'this action is unauthorized'
+           ] , 403);
+       }
+
+
+        $validRequest = Validator::make($request->all() , [
+            'isbn' => 'required',
+            'title' => 'required',
+            "subtitle" => "nullable|string",
+            "author" => "nullable|string",
+            "published" => "nullable|string",
+            "publisher" => "nullable|string",
+            "pages" => "nullable|integer",
+            "description" => "nullable|string",
+            "website" => "nullable|string"
+        ]);
+
+        if ($validRequest->fails()){
+            return response()->json([
+                "message" => "string" , 
+                "errors" => [
+                    "isbn" => "[`string`]",
+                    "title" => "[`string`]",
+                    "subtitle" => "[`string`]",
+                    "author" => "[`string`]",
+                    "published" => "[`string`]",
+                    "publisher" => "[`string`]",
+                    "pages" => "[`string`]",
+                    "description" => "[`string`]",
+                    "website" => "[`string`]"
+                ]
+            ] , 422);
+        }
+
+        $book->update($request->only([
+            'isbn', 'title', 'subtitle', 'author', 'published', 'publisher', 'pages', 'description', 'website'
+        ]));
+    
+        return response()->json([
+            'message' => 'Book updated',
+            'book' => $book
+        ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
-        //
+        $book = Book::find($id);
+        $user = $request->user();
+        
+        if (!$book) {
+            return response()->json([
+               'message' => 'No query result for model [App\\Models\\Book] 999'
+           ] , 404);
+       }
+
+       if ($book->user_id != $user->id){
+           return response()->json([
+               'message' => 'this action is unauthorized'
+           ] , 403);
+       }
+    
+        // Delete the book
+        $book->delete();
+    
+        return response()->json([
+            'message' => 'Book deleted' , 
+            'book' => $book
+        ], 200);
     }
 }

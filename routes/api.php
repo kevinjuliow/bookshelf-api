@@ -2,21 +2,37 @@
 
 use App\Http\Controllers\api\bookController;
 use App\Http\Controllers\api\userController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-
 //Register User 
-Route::post('/register', [userController::class, 'signup']);
+Route::post('/register', [userController::class, 'register']);
 
 //Login
-Route::post('/login', [userController::class, 'signin']);
+Route::post('/login', [userController::class, 'login']);
 
-//GET ALL BOOKS
-Route::get('/books' , [bookController::class , 'index'] );
 
-//Create a new Book
-Route::post('/books', [bookController::class , 'store'])->middleware('auth:sanctum');
 
-//Show books in paginate
-Route::get('/books', [bookController::class , 'bookPagination'])->middleware('auth:sanctum');
+Route::middleware('auth:sanctum')->group(function(){
+    // Create a new Book
+    Route::post('/books', [BookController::class, 'store']);
+     
+    // Show books in paginate
+    Route::get('/books', [BookController::class, 'bookPagination']);
+
+    //Show Book By ID
+    Route::get('/books/{id}', [BookController::class, 'show']);
+    
+    //update book
+    Route::put('/books/{id}', [BookController::class, 'update']);
+
+    //delete book
+    Route::delete('/books/{id}', [BookController::class, 'destroy']);
+    
+ });
+
+
+
+ 
+
+
+

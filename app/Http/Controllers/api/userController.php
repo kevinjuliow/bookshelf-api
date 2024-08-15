@@ -13,7 +13,7 @@ class userController extends Controller
     /**
      * Create New User .
      */
-    public function signup(Request $request)
+    public function register(Request $request)
     {
         $validRequest = Validator::make($request->all() , [
             'name' => 'required',
@@ -52,7 +52,7 @@ class userController extends Controller
     /**
      * Login To Existing User . 
      */
-    public function signin(Request $request)
+    public function login(Request $request)
     {
         $validRequest = Validator::make($request->all() , [
             'email' => 'required|email',
